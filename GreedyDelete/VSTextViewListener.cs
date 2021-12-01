@@ -15,16 +15,12 @@ namespace GreedyDelete
         public void TextViewCreated(IWpfTextView textView)
         {
             _emptyLineRemover = new EmptyLineRemover(textView);
-
             textView.TextBuffer.PostChanged += new EventHandler(TextBuffer_PostChanged);
 
         }
         private void TextBuffer_PostChanged(object sender, EventArgs e)
         {
-            if (_emptyLineRemover != null)
-            {
-                _emptyLineRemover.HandleTextChange();
-            }
+            _emptyLineRemover.HandleTextChange();
         }
     }
 }

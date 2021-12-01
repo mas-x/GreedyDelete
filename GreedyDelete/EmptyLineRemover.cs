@@ -15,11 +15,11 @@ namespace GreedyDelete
         private bool _foundEmptyLineInPreviousChange = false;
         private int _emptyLineIndexInPreviousChange = -1;
 
-        private IWpfTextView m_TextView = null;
+        private IWpfTextView _textView = null;
 
         public EmptyLineRemover(IWpfTextView textView)
         {
-            m_TextView = textView;
+            _textView = textView;
         }
 
         public void HandleTextChange()
@@ -27,8 +27,8 @@ namespace GreedyDelete
             if (_handlingChange)
                 return;
 
-            bool bCurrentLineIsEmpty = string.IsNullOrWhiteSpace(m_TextView.Caret.ContainingTextViewLine.Extent.GetText());
-            int currentLineIndex = m_TextView.TextViewLines.IndexOf(m_TextView.Caret.ContainingTextViewLine);
+            bool bCurrentLineIsEmpty = string.IsNullOrWhiteSpace(_textView.Caret.ContainingTextViewLine.Extent.GetText());
+            int currentLineIndex = _textView.TextViewLines.IndexOf(_textView.Caret.ContainingTextViewLine);
 
             if (_foundEmptyLineInPreviousChange)
             {
@@ -51,20 +51,20 @@ namespace GreedyDelete
 
                 _handlingChange = true;
 
-                ITextViewLine currentTextViewLine = m_TextView.Caret.ContainingTextViewLine;
+                ITextViewLine currentTextViewLine = _textView.Caret.ContainingTextViewLine;
                 RemoveLine(currentTextViewLine);
 
-                ITextViewLine lineToMoveCursorTo = m_TextView.TextViewLines[m_TextView.TextViewLines.IndexOf(m_TextView.Caret.ContainingTextViewLine) - 1];
+                ITextViewLine lineToMoveCursorTo = _textView.TextViewLines[_textView.TextViewLines.IndexOf(_textView.Caret.ContainingTextViewLine) - 1];
                 while (string.IsNullOrWhiteSpace(lineToMoveCursorTo.Extent.GetText()))
                 {
                     ITextViewLine tempCopy = lineToMoveCursorTo;
 
-                    lineToMoveCursorTo = m_TextView.TextViewLines[m_TextView.TextViewLines.IndexOf(tempCopy) - 1];
+                    lineToMoveCursorTo = _textView.TextViewLines[_textView.TextViewLines.IndexOf(tempCopy) - 1];
 
                     RemoveLine(tempCopy);
                 }
 
-                m_TextView.Caret.MoveTo(lineToMoveCursorTo, lineToMoveCursorTo.Right);
+                _textView.Caret.MoveTo(lineToMoveCursorTo, lineToMoveCursorTo.Right);
 
                 _emptyLineIndexInPreviousChange = -1;
                 _foundEmptyLineInPreviousChange = false;
@@ -78,7 +78,7 @@ namespace GreedyDelete
             if (lineToRemove == null)
                 return;
 
-            ITextEdit textEdit = m_TextView.TextBuffer.CreateEdit();
+            ITextEdit textEdit = _textView.TextBuffer.CreateEdit();
             textEdit.Delete(lineToRemove.Start, lineToRemove.LengthIncludingLineBreak);
             textEdit.Apply();
         }
