@@ -27,12 +27,13 @@ namespace GreedyDelete
             if (_handlingChange)
                 return;
 
-            bool bCurrentLineIsEmpty = string.IsNullOrWhiteSpace(_textView.Caret.ContainingTextViewLine.Extent.GetText());
+            ITextViewLine currentLine = _textView.Caret.ContainingTextViewLine;
+            bool isCurrentLineEmpty = string.IsNullOrWhiteSpace(currentLine.Extent.GetText());
             int currentLineIndex = _textView.TextViewLines.IndexOf(_textView.Caret.ContainingTextViewLine);
 
             if (_foundEmptyLineInPreviousChange)
             {
-                if (_emptyLineIndexInPreviousChange != currentLineIndex || !bCurrentLineIsEmpty)
+                if (_emptyLineIndexInPreviousChange != currentLineIndex || !isCurrentLineEmpty)
                 {
                     _foundEmptyLineInPreviousChange = false;
                     _emptyLineIndexInPreviousChange = -1;
@@ -40,7 +41,7 @@ namespace GreedyDelete
                 }
             }
 
-            if (bCurrentLineIsEmpty)
+            if (isCurrentLineEmpty)
             {
                 if (currentLineIndex != _emptyLineIndexInPreviousChange || !_foundEmptyLineInPreviousChange)
                 {
@@ -51,8 +52,7 @@ namespace GreedyDelete
 
                 _handlingChange = true;
 
-                ITextViewLine currentTextViewLine = _textView.Caret.ContainingTextViewLine;
-                RemoveLine(currentTextViewLine);
+                RemoveLine(currentLine);
 
                 ITextViewLine lineToMoveCursorTo = _textView.TextViewLines[_textView.TextViewLines.IndexOf(_textView.Caret.ContainingTextViewLine) - 1];
                 while (string.IsNullOrWhiteSpace(lineToMoveCursorTo.Extent.GetText()))
