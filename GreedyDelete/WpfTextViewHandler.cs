@@ -15,11 +15,9 @@ namespace GreedyDelete
 
         public IWpfTextView TextView { get; set; }
 
-        public TextContentChangedEventArgs TextChangedEventArgs { get; set; }
-
         public bool IsHandlingChange { get; set; }
         public bool FoundEmptyLineInPreviousChange { get; set; }
-        public bool IsLineChange { get; set; }
+        public bool IgnoreChange { get; set; }
 
         public int EmptyLineIndexInPreviousChange { get; set; }
 
@@ -34,20 +32,21 @@ namespace GreedyDelete
             if (IsHandlingChange)
                 return;
 
-            if (IsLineChange)
+            ITextViewLine currentLine = TextView.Caret.ContainingTextViewLine;
+            string currentLineText = currentLine.Extent.GetText();
+
+            if (IgnoreChange)
             {
-                IsLineChange = false;
+                IgnoreChange = false;
                 PreviousLineText = string.Empty;
                 return;
             }
 
-            ITextViewLine currentLine = TextView.Caret.ContainingTextViewLine;
-
-            if (!string.IsNullOrWhiteSpace(currentLine.Extent.GetText()) || !string.IsNullOrWhiteSpace(PreviousLineText))
+            if (!string.IsNullOrWhiteSpace(currentLineText) || !string.IsNullOrWhiteSpace(PreviousLineText))
             {
-                PreviousLineText = currentLine.Extent.GetText();
+                PreviousLineText = currentLineText;
                 return;
-            }
+            }            
 
             int currentLineIndex = TextView.TextViewLines.IndexOf(TextView.Caret.ContainingTextViewLine);
 

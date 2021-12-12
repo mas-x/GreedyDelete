@@ -39,9 +39,9 @@ namespace GreedyDelete
 
             if (handler != null && !handler.IsHandlingChange)
             {
-                if (e.Changes.IncludesLineChanges || Utility.IsXAMLNewLine(e))
+                if (e.Changes.IncludesLineChanges || Utility.IsXAMLNewLine(e) || Utility.IsWhiteSpaceChange(handler.TextView, e))
                 {
-                    handler.IsLineChange = true;
+                    handler.IgnoreChange = true;
                 }
             }
         }
