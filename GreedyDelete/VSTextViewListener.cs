@@ -17,9 +17,10 @@ namespace GreedyDelete
 
         public void TextViewCreated(IWpfTextView textView)
         {
-            if (WrapperAlreadyExistsForTextView(textView))
+            if (HandlerExistsForTextView(textView))
                 return;
 
+            textView.TextBuffer.Changed += TextBuffer_Changed;
             textView.TextBuffer.PostChanged += TextBuffer_PostChanged;
             textView.Closed += TextView_Closed;
 
@@ -29,15 +30,31 @@ namespace GreedyDelete
             });
         }
 
+        private void TextBuffer_Changed(object sender, TextContentChangedEventArgs e)
+        {
+            if (e == null)
+                return;
+
+            WpfTextViewHandler handler = GetHandlerForTextBuffer(sender as ITextBuffer);
+
+            if (handler != null && !handler.IsHandlingChange)
+            {
+                if (e.Changes.IncludesLineChanges || Utility.IsXAMLNewLine(e))
+                {
+                    handler.IsLineChange = true;
+                }
+            }
+        }
+
         private void TextBuffer_PostChanged(object sender, EventArgs e)
         {
             WpfTextViewHandler handler = GetHandlerForTextBuffer(sender as ITextBuffer);
 
             if (handler != null)
-                handler.HandleTextChange();
+                handler.HandleChange();
         }
 
-        private bool WrapperAlreadyExistsForTextView(IWpfTextView textView)
+        private bool HandlerExistsForTextView(IWpfTextView textView)
         {
             return _wpfTextViewHandlers.FindIndex(x => x.TextView == textView) >= 0;
         }
