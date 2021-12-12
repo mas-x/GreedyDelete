@@ -37,6 +37,7 @@ namespace GreedyDelete
             if (IsLineChange)
             {
                 IsLineChange = false;
+                PreviousLineText = string.Empty;
                 return;
             }
 
